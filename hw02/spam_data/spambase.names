@@ -1,0 +1,89 @@
+| SPAM E-MAIL DATABASE ATTRIBUTES (in .names format)
+|
+| 48 continuous real [0,100] attributes of type word_freq_WORD 
+| = percentage of words in the e-mail that match WORD,
+| i.e. 100 * (number of times the WORD appears in the e-mail) / 
+| total number of words in e-mail.  A "word" in this case is any 
+| string of alphanumeric characters bounded by non-alphanumeric 
+| characters or end-of-string.
+|
+| 6 continuous real [0,100] attributes of type char_freq_CHAR
+| = percentage of characters in the e-mail that match CHAR,
+| i.e. 100 * (number of CHAR occurences) / total characters in e-mail
+|
+| 1 continuous real [1,...] attribute of type capital_run_length_average
+| = average length of uninterrupted sequences of capital letters
+|
+| 1 continuous integer [1,...] attribute of type capital_run_length_longest
+| = length of longest uninterrupted sequence of capital letters
+|
+| 1 continuous integer [1,...] attribute of type capital_run_length_total
+| = sum of length of uninterrupted sequences of capital letters
+| = total number of capital letters in the e-mail
+|
+| 1 nominal {0,1} class attribute of type spam
+| = denotes whether the e-mail was considered spam (1) or not (0), 
+| i.e. unsolicited commercial e-mail.  
+
+
+1, 0.    | spam, non-spam classes
+
+word_ratio:
+	make:         continuous.
+	address:      continuous.
+	all:          continuous.
+	3d:           continuous.
+	our:          continuous.
+	over:         continuous.
+	remove:       continuous.
+	internet:     continuous.
+	order:        continuous.
+	mail:         continuous.
+	receive:      continuous.
+	will:         continuous.
+	people:       continuous.
+	report:       continuous.
+	addresses:    continuous.
+	free:         continuous.
+	business:     continuous.
+	email:        continuous.
+	you:          continuous.
+	credit:       continuous.
+	your:         continuous.
+	font:         continuous.
+	000:          continuous.
+	money:        continuous.
+	hp:           continuous.
+	hpl:          continuous.
+	george:       continuous.
+	650:          continuous.
+	lab:          continuous.
+	labs:         continuous.
+	telnet:       continuous.
+	857:          continuous.
+	data:         continuous.
+	415:          continuous.
+	85:           continuous.
+	echnology:   continuous.
+	1999:         continuous.
+	parts:        continuous.
+	pm:           continuous.
+	direct:       continuous.
+	cs:           continuous.
+	meeting:      continuous.
+	original:     continuous.
+	project:      continuous.
+	re:           continuous.
+	edu:          continuous.
+	table:        continuous.
+	conference:   continuous.
+
+char_freq_;:            continuous.
+char_freq_(:            continuous.
+char_freq_[:            continuous.
+char_freq_!:            continuous.
+char_freq_$:            continuous.
+char_freq_#:            continuous.
+capital_run_length_average: continuous.
+capital_run_length_longest: continuous.
+capital_run_length_total:   continuous.

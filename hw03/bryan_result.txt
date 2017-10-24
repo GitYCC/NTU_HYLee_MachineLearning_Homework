@@ -1,0 +1,134 @@
+Using TensorFlow backend.
+C:\Users\yi-chang chen\Desktop\Tensorflow Workspace\method1.py:32: UserWarning: Update your `Conv2D` call to the Keras 2 API: `Conv2D(192, (5, 5), input_shape=(32, 32, 3...)`
+  model.add(Convolution2D(192, 5, 5, input_shape=(32, 32, 3)))
+C:\Users\yi-chang chen\Desktop\Tensorflow Workspace\method1.py:37: UserWarning: Update your `Conv2D` call to the Keras 2 API: `Conv2D(256, (1, 1))`
+  model.add(Convolution2D(256, 1, 1))
+C:\Users\yi-chang chen\Desktop\Tensorflow Workspace\method1.py:42: UserWarning: Update your `Conv2D` call to the Keras 2 API: `Conv2D(384, (1, 1))`
+  model.add(Convolution2D(384, 1, 1))
+C:\Users\yi-chang chen\Desktop\Tensorflow Workspace\method1.py:45: UserWarning: Update your `Conv2D` call to the Keras 2 API: `Conv2D(256, (1, 1))`
+  model.add(Convolution2D(256, 1, 1))
+C:\Users\yi-chang chen\Desktop\Tensorflow Workspace\method1.py:48: UserWarning: Update your `Conv2D` call to the Keras 2 API: `Conv2D(192, (3, 3))`
+  model.add(Convolution2D(192, 3, 3))
+C:\Users\yi-chang chen\Desktop\Tensorflow Workspace\method1.py:53: UserWarning: Update your `Dense` call to the Keras 2 API: `Dense(512, kernel_initializer="he_normal")`
+  model.add(Dense(512, init='he_normal'))
+C:\Users\yi-chang chen\Desktop\Tensorflow Workspace\method1.py:57: UserWarning: Update your `Dense` call to the Keras 2 API: `Dense(10, kernel_initializer="he_normal")`
+  model.add(Dense(10, init='he_normal'))
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+conv2d_1 (Conv2D)            (None, 28, 28, 192)       14592
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 28, 28, 192)       768
+_________________________________________________________________
+activation_1 (Activation)    (None, 28, 28, 192)       0
+_________________________________________________________________
+max_pooling2d_1 (MaxPooling2 (None, 14, 14, 192)       0
+_________________________________________________________________
+conv2d_2 (Conv2D)            (None, 14, 14, 256)       49408
+_________________________________________________________________
+batch_normalization_2 (Batch (None, 14, 14, 256)       1024
+_________________________________________________________________
+activation_2 (Activation)    (None, 14, 14, 256)       0
+_________________________________________________________________
+max_pooling2d_2 (MaxPooling2 (None, 7, 7, 256)         0
+_________________________________________________________________
+conv2d_3 (Conv2D)            (None, 7, 7, 384)         98688
+_________________________________________________________________
+batch_normalization_3 (Batch (None, 7, 7, 384)         1536
+_________________________________________________________________
+activation_3 (Activation)    (None, 7, 7, 384)         0
+_________________________________________________________________
+conv2d_4 (Conv2D)            (None, 7, 7, 256)         98560
+_________________________________________________________________
+batch_normalization_4 (Batch (None, 7, 7, 256)         1024
+_________________________________________________________________
+activation_4 (Activation)    (None, 7, 7, 256)         0
+_________________________________________________________________
+conv2d_5 (Conv2D)            (None, 5, 5, 192)         442560
+_________________________________________________________________
+batch_normalization_5 (Batch (None, 5, 5, 192)         768
+_________________________________________________________________
+activation_5 (Activation)    (None, 5, 5, 192)         0
+_________________________________________________________________
+flatten_1 (Flatten)          (None, 4800)              0
+_________________________________________________________________
+dense_1 (Dense)              (None, 512)               2458112
+_________________________________________________________________
+batch_normalization_6 (Batch (None, 512)               2048
+_________________________________________________________________
+activation_6 (Activation)    (None, 512)               0
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 512)               0
+_________________________________________________________________
+dense_2 (Dense)              (None, 10)                5130
+_________________________________________________________________
+activation_7 (Activation)    (None, 10)                0
+=================================================================
+Total params: 3,174,218
+Trainable params: 3,170,634
+Non-trainable params: 3,584
+_________________________________________________________________
+Epoch 1/25
+2017-06-28 23:37:24.990935: W c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE instructions, but these are available on your machine and could speed up CPU computations.
+2017-06-28 23:37:24.991640: W c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE2 instructions, but these are available on your machine and could speed up CPU computations.
+2017-06-28 23:37:24.992236: W c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE3 instructions, but these are available on your machine and could speed up CPU computations.
+2017-06-28 23:37:24.992634: W c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.1 instructions, but these are available on your machine and could speed up CPU computations.
+2017-06-28 23:37:24.994124: W c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.2 instructions, but these are available on your machine and could speed up CPU computations.
+2017-06-28 23:37:25.392346: I c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\common_runtime\gpu\gpu_device.cc:887] Found device 0 with properties:
+name: GeForce GTX 750 Ti
+major: 5 minor: 0 memoryClockRate (GHz) 1.137
+pciBusID 0000:01:00.0
+Total memory: 2.00GiB
+Free memory: 1.65GiB
+2017-06-28 23:37:25.392726: I c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\common_runtime\gpu\gpu_device.cc:908] DMA: 0
+2017-06-28 23:37:25.394267: I c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\common_runtime\gpu\gpu_device.cc:918] 0:   Y
+2017-06-28 23:37:25.395592: I c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\common_runtime\gpu\gpu_device.cc:977] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 750 Ti, pci bus id: 0000:01:00.0)
+5000/5000 [==============================] - 26s - loss: 2.2334 - acc: 0.2574
+Epoch 2/25
+5000/5000 [==============================] - 20s - loss: 1.8854 - acc: 0.3332
+Epoch 3/25
+5000/5000 [==============================] - 20s - loss: 1.7108 - acc: 0.3938
+Epoch 4/25
+5000/5000 [==============================] - 21s - loss: 1.5917 - acc: 0.4406
+Epoch 5/25
+5000/5000 [==============================] - 20s - loss: 1.5082 - acc: 0.4696
+Epoch 6/25
+5000/5000 [==============================] - 22s - loss: 1.4303 - acc: 0.4950
+Epoch 7/25
+5000/5000 [==============================] - 20s - loss: 1.3367 - acc: 0.5208
+Epoch 8/25
+5000/5000 [==============================] - 21s - loss: 1.2481 - acc: 0.5630
+Epoch 9/25
+5000/5000 [==============================] - 20s - loss: 1.1598 - acc: 0.5934
+Epoch 10/25
+5000/5000 [==============================] - 21s - loss: 1.0367 - acc: 0.6418
+Epoch 11/25
+5000/5000 [==============================] - 23s - loss: 0.9325 - acc: 0.6770
+Epoch 12/25
+5000/5000 [==============================] - 21s - loss: 0.8084 - acc: 0.7210
+Epoch 13/25
+5000/5000 [==============================] - 20s - loss: 0.7113 - acc: 0.7526
+Epoch 14/25
+5000/5000 [==============================] - 20s - loss: 0.5791 - acc: 0.7976
+Epoch 15/25
+5000/5000 [==============================] - 20s - loss: 0.5290 - acc: 0.8184
+Epoch 16/25
+5000/5000 [==============================] - 20s - loss: 0.4755 - acc: 0.8368
+Epoch 17/25
+5000/5000 [==============================] - 20s - loss: 0.4136 - acc: 0.8572
+Epoch 18/25
+5000/5000 [==============================] - 20s - loss: 0.3633 - acc: 0.8760
+Epoch 19/25
+5000/5000 [==============================] - 20s - loss: 0.3438 - acc: 0.8768
+Epoch 20/25
+5000/5000 [==============================] - 20s - loss: 0.3150 - acc: 0.8922
+Epoch 21/25
+5000/5000 [==============================] - 21s - loss: 0.2992 - acc: 0.8956
+Epoch 22/25
+5000/5000 [==============================] - 20s - loss: 0.2629 - acc: 0.9128
+Epoch 23/25
+5000/5000 [==============================] - 20s - loss: 0.2448 - acc: 0.9210
+Epoch 24/25
+5000/5000 [==============================] - 20s - loss: 0.2293 - acc: 0.9262
+Epoch 25/25
+5000/5000 [==============================] - 20s - loss: 0.2567 - acc: 0.9140
