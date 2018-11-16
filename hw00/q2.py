@@ -11,4 +11,4 @@ data = np.array(im)
 rotated_data = np.flip(np.flip(data, axis=0), axis=1)
 
 new_im = Image.fromarray(rotated_data)
-new_im.save('ans2.png')
+new_im.save('result/ans2.png')
