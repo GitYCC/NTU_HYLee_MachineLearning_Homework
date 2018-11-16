@@ -1,5 +1,28 @@
 # NTU_HYLee_MachineLearning_Homework
 
+## 事前準備
+
+### 使用虛擬環境
+
+```
+$ virtualenv ./ENV
+$ source ./ENV/bin/active
+```
+
+假設想要離開虛擬環境，則
+
+```
+$ deactivate
+```
+
+### 安裝相依套件
+
+在虛擬環境下，安裝相依套件
+
+```
+$ pip2.7 install -r requirements.txt
+```
+
 ## HW00
 
 Original: [https://docs.google.com/presentation/d/1VCnqWX469V4Qi_dHJIXxWMhvtg3h6pyBuRYPao-GZ1k/edit#slide=id.g17e2c04840_1_14](https://docs.google.com/presentation/d/1VCnqWX469V4Qi_dHJIXxWMhvtg3h6pyBuRYPao-GZ1k/edit#slide=id.g17e2c04840_1_14)
