@@ -6,10 +6,10 @@ input_file = str(sys.argv[2])
 
 with open(input_file) as f:
     line = f.readlines()[index].strip()
-    words = line.split(" ")
-    nums = map(float,words)
+    words = line.split(' ')
+    nums = map(float, words)
     sorted_nums = sorted(nums)
-    output = ",".join(map(str,sorted_nums))
+    output = ','.join(map(str, sorted_nums))
     print output
 
-open("ans1.txt","w").write(output)
+open('ans1.txt', 'w').write(output)
