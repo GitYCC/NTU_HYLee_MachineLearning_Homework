@@ -11,7 +11,7 @@ from gradient_descent import GradientDescent
 
 # ### preproc data
 colnames = ['Date', 'Site', 'Item']+map(str, range(24))
-df = pd.read_csv('./data/train.csv', names=colnames, skiprows=1)
+df = pd.read_csv('./given/train.csv', names=colnames, skiprows=1)
 
 # remove column 'Site'
 df = df.loc[:, ['Date', 'Item']+map(str, range(24))]
@@ -104,7 +104,7 @@ gd.train_by_pseudo_inverse(train_X, train_y, alpha=0.5, validate_data=(valid_X, 
 
 # ### testing
 col_names = ['ID', 'Item']+map(lambda x: '{:02d}h'.format(x), range(1, 10))
-test = pd.read_csv('./data/test_X.csv', names=col_names, header=None)
+test = pd.read_csv('./given/test_X.csv', names=col_names, header=None)
 
 # record ordfer of test.ID
 id_test = test.ID
@@ -137,4 +137,4 @@ X_test = np.array(test[colname_X], dtype='float64')
 test['Predict'] = gd.predict(X_test)
 
 # output
-test[['ID', 'Predict']].to_csv('linear_regression.csv', header=None, index=None)
+test[['ID', 'Predict']].to_csv('result/linear_regression.csv', header=None, index=None)
