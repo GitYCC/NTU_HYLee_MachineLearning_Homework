@@ -1,5 +1,7 @@
 # NTU_HYLee_MachineLearning_Homework
 
+![image](https://img.shields.io/badge/python-2.7-blue.svg)
+
 ## 事前準備
 
 ### 使用虛擬環境
