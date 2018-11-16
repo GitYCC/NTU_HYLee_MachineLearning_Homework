@@ -1,5 +1,7 @@
 # NTU_HYLee_MachineLearning_Homework
 
+![image](https://img.shields.io/badge/python-2.7-blue.svg)
+
 ## 事前準備
 
 ### 使用虛擬環境
@@ -27,13 +29,19 @@ $ pip2.7 install -r requirements.txt
 
 Original: [https://docs.google.com/presentation/d/1VCnqWX469V4Qi_dHJIXxWMhvtg3h6pyBuRYPao-GZ1k/edit#slide=id.g17e2c04840_1_14](https://docs.google.com/presentation/d/1VCnqWX469V4Qi_dHJIXxWMhvtg3h6pyBuRYPao-GZ1k/edit#slide=id.g17e2c04840_1_14)
 
-**Q1. 輸入hw0_data.dat，請將指定column由小排到大並印出來到ans1.txt**
+**Q1. File `given/hw0_data.dat` has 11 columns splitted by single space. Please choose specific column `i` from this file, sort the sequence from small to large, and output to `result/ans1.txt`. Given `i = 1`.**
 
-**A1:** Q1.sh, q1.py
+```
+$ cd hw00
+$ ./Q1.sh 1 given/hw0_data.dat
+```
 
-**Q2. 輸入一張圖，將圖上下顛倒，左右相反（旋轉180度），並輸出到ans2.png**
+**Q2. Input the picture `given/Lena.png`. Please let this picture upside down and then left/right reversed (rotate 180 degree). Output to `result/ans2.png`**
 
-**A2:** Q2.sh, q2.py
+```
+$ cd hw00
+$ ./Q2.sh given/Lena.png
+```
 
 ## HW01
 
