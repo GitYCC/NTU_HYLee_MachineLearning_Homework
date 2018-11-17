@@ -47,75 +47,29 @@ $ ./Q2.sh given/Lena.png
 
 Original: [http://speech.ee.ntu.edu.tw/~tlkagk/courses/ML_2016/Lecture/hw1.pdf](http://speech.ee.ntu.edu.tw/~tlkagk/courses/ML_2016/Lecture/hw1.pdf)
 
-本次作業使用豐原站的觀測記錄，分成train set跟test set，train set是豐原站每個月的前20天所有資料。test set則是從豐原站剩下的資料中取樣出來。
+data set: This data is an observation from 豐原 station, recorded weather parameters each hour at one day.
+* `given/train.csv`: Choose first 20 days in each month to be a training set.
+* `given/test.csv`: Choose last 10 days in each month to be a testing set. From testing set, select data among continuous 10 hours as a batch. Use first 9 hours data in this batch as a feature and `PM2.5` at 10 hour as answer. And we hide this answer.
 
-train.csv: 每個月前20天的完整資料。
-
-test_X.csv: 從剩下的10天資料中取樣出連續的10小時為一筆，前九小時的所有觀測數據當作feature，第十小時的PM2.5當作answer。一共取出240筆不重複的test data，請根據feauure預測這240筆的PM2.5。
+Please train a linear model to predict the answer in `given/test.csv` (format of output reference `given/sampleSubmission.csv`).
 
 **Ans:**
 
-GradientDescent class
+Here presents two methods to implement linear regresssion.
 
-```python
-class GradientDescent(object):
-    def __init__(self):
-        self.__wt = None
-        self.__b = None
-        self.__X = None
-        self.__y = None
-    @property
-    def wt(self):
-        #...
-    @property
-    def b(self):
-        #...
-    def train_by_pseudo_inverse(self,X,y,alpha=0,validate_data=None):
-        #...
-    def train(self,X,y,init_wt=np.array([]),init_b=0,rate=0.01,alpha=0,epoch=1000,batch=None,validate_data=None):
-        #...
-    def update(self,X,y,wt,b,rate,alpha):
-        #...
-    def predict(self,X):
-        #...
-    def err_insample(self):
-        #... 
-    def err(self,X,y):
-        #...
-    def _check_data(self,X,y):
-        #...
+1. using pseudo inverse,
+
+```
+$ cd hw01
+$ python main.py --method pseudo_inverse --output result/pseudo_inverse.csv
 ```
 
-Using GradientDescent class to do linear regression
+2. using gradient descent,
 
-```python
-### preproc data
-# remove column "Site"
-# melt "Hour" to column
-# generate "Datetime"
-# replace NR to 0
-# change "Value" type
-# pivot 'Item' to columns
-
-### obtain training set and validation set
-
-def gen_regression_form(df):
-    #...
-
-# record the order of columns
-
-### gradient descent
-
-### testing
-# record ordfer of test.ID
-# replace NR to 0
-# ['ID','Item','Hour','Value'] form
-# combine 'Hour' and 'Item' to 'Col'
-# pivot 'Col' to columns
-# re-order
-# predict
-# output
 ```
+$ cd hw01
+$ python main.py --method gradient_descent --output result/gradient_descent.csv
+````
 
 ## HW02
 

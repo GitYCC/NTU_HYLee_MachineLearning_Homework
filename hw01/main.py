@@ -68,7 +68,7 @@ def _split_df_into_train_and_valid(df):
 def _convert_to_problem_regression_form(df):
     """Convert to the problem regression form.
 
-    The problem is that using parameters among continue 9 hours to predict PM2.5 on next hour.
+    The problem is that using parameters among continuous 9 hours to predict PM2.5 on next hour.
 
     Args:
         df (pd.Dataframe): `index` is datetime
