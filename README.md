@@ -91,13 +91,14 @@ We have some labeled emails. In `given/spam_train.csv`, first severval columns p
 train:
 
 ```
-python logistic_regression.py --type train --model result/model1.p
+$ cd hw02
+$ python logistic_regression.py --type train --model result/model1.p
 ```
 
 test:
 
 ```
-python logistic_regression.py --type test --model result/model1.p --output result/result1.csv
+$ python logistic_regression.py --type test --model result/model1.p --output result/result1.csv
 ```
 
 **Q2: Implement DNN to detect spams**
@@ -107,18 +108,25 @@ python logistic_regression.py --type test --model result/model1.p --output resul
 train:
 
 ```
-python dnn.py --type train --model result/model2.h5
+$ cd hw02
+$ python dnn.py --type train --model result/model2.h5
 ```
 
 test:
 
 ```
-python dnn.py --type test --model result/model2.h5 --output result/result2.csv
+$ python dnn.py --type test --model result/model2.h5 --output result/result2.csv
 ```
 
 ## HW03
 
 Original: [http://speech.ee.ntu.edu.tw/~tlkagk/courses/ML_2016/Lecture/ML%20HW3.pdf](http://speech.ee.ntu.edu.tw/~tlkagk/courses/ML_2016/Lecture/ML%20HW3.pdf)
+
+please prepare dataset of cifar-10 first
+```
+$ cd hw03
+$ python prepare_data.py
+```
 
 使用影像圖集cifar-10做影像辨識並分類，一共有10個類別，包括：飛機、汽車、鳥、等等，每個類別各有50張已經Label好的圖片，所以Labeled Data有500筆，另外還有45000筆的圖片是Unlabeled Data，只有圖但是不知道它們的類別。
 
