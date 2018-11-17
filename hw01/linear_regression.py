@@ -1,140 +1,132 @@
-#!python2.7
-import os
-from collections import OrderedDict
-from datetime import timedelta
+#!/usr/local/bin/python2.7
+import math
 
 import numpy as np
-import pandas as pd
-
-from gradient_descent import GradientDescent
 
 
-# ### preproc data
-colnames = ['Date', 'Site', 'Item']+map(str, range(24))
-df = pd.read_csv('./data/train.csv', names=colnames, skiprows=1)
+class LinearRegression(object):
+    def __init__(self):
+        self.__wt = None
+        self.__b = None
+        self.__X = None
+        self.__y = None
 
-# remove column 'Site'
-df = df.loc[:, ['Date', 'Item']+map(str, range(24))]
+    @property
+    def wt(self):
+        return self.__wt
 
-# melt 'Hour' to column
-df = pd.melt(df,
-             id_vars=['Date', 'Item'],
-             value_vars=map(str, range(24)),
-             var_name='Hour',
-             value_name='Value')
+    @property
+    def b(self):
+        return self.__b
 
-# generate 'Datetime'
-df['Datetime'] = pd.to_datetime(df.Date + ' ' + df.Hour + ':00:00')
-df = df.loc[:, ['Datetime', 'Item', 'Value']]
+    def train_by_pseudo_inverse(self, X, y, alpha=0, validate_data=None):  # noqa: N803
+        self._check_data(X, y)
 
-# replace NR to 0
-df.loc[df.Value == 'NR', 'Value'] = 0
+        self.__X = X
+        self.__y = y
 
-# change 'Value' type
-df['Value'] = df['Value'].astype(float)
+        num_data = X.shape[0]
+        dim_wt = X.shape[1]
 
-# pivot 'Item' to columns
-df = df.pivot_table(values='Value', index='Datetime', columns='Item', aggfunc='sum')
+        argu_X = np.hstack((np.ones(num_data).reshape(num_data, 1), X))
 
-# ### obtain training set and validation set
+        # calculate pseudo-inverse
+        A_plus = np.dot(np.linalg.inv(np.dot(argu_X.T, argu_X)+alpha*np.eye(dim_wt+1)), argu_X.T)
 
-df_12m = df.loc[df.index.month == 12, :]
-df_not_12m = df.loc[df.index.month != 12, :]
+        wt_b = np.dot(A_plus, y)
+        self.__b = wt_b[0]
+        self.__wt = wt_b[1:]
 
+        if validate_data:
+            print 'Pseudo-Inverse: err = {:.6f} validate = {:.6f}'.format(
+                self.err_insample(),
+                self.err(validate_data[0], validate_data[1]))
+        else:
+            print 'Pseudo-Inverse: err = {:.6f}'.format(self.err_insample())
 
-def gen_regression_form(df):
-    data = OrderedDict()
-    item_list = df.columns.tolist()
-    datetime_list = df.index
-    for i in range(9):
-        for item in item_list:
-            data['{:02d}h__{}'.format(i+1, item)] = []
-    data['10h__PM2.5'] = []
+    def train_by_gradient_descent(self, X, y, init_wt=np.array([]), init_b=0,  # noqa: N803
+              rate=0.01, alpha=0, epoch=1000, batch=None, validate_data=None):
+        self._check_data(X, y)
 
-    d1h = timedelta(hours=1)
-    for m in pd.unique(datetime_list.month):
-        for timestamp in (df.loc[df.index.month == m, :]).index:
-            start = timestamp
-            end = timestamp + 9*d1h
-            sub_df = df.loc[(start <= df.index) & (df.index <= end), :]
-            if sub_df.shape[0] == 10:
-                for i in range(9):
-                    for item in item_list:
-                        data['{:02d}h__{}'.format(i+1, item)].append(
-                            sub_df.loc[timestamp+i*d1h, item])
-                data['10h__PM2.5'].append(sub_df.loc[timestamp+9 * d1h, 'PM2.5'])
+        if init_wt.size == 0:
+            init_wt = np.zeros(X.shape[1])
 
-    return pd.DataFrame(data)
+        self.__X = X
+        self.__y = y
 
+        self.__wt = init_wt
+        self.__b = init_b
 
-path_valid_data = './valid_data.csv'
-if os.path.isfile(path_valid_data):
-    valid_data = pd.read_csv(path_valid_data)
-else:
-    valid_data = gen_regression_form(df_12m)
-    valid_data.to_csv(path_valid_data, index=None)
+        num_data = X.shape[0]
 
-path_train_data = './train_data.csv'
-if os.path.isfile(path_train_data):
-    train_data = pd.read_csv(path_train_data)
-else:
-    train_data = gen_regression_form(df_not_12m)
-    train_data.to_csv(path_train_data, index=None)
+        if not batch:
+            batch = num_data
 
-train_X = np.array(train_data.loc[:, train_data.columns != '10h__PM2.5'])
-train_y = np.array(train_data.loc[:, '10h__PM2.5'])
+        tot_batch = int(math.ceil(float(num_data) / float(batch)))
+        if validate_data:
+            for i in range(epoch):
+                for j in range(tot_batch):
+                    batch_X = self.__X[j*batch:min(num_data, (j+1)*batch), :]
+                    batch_y = self.__y[j*batch:min(num_data, (j+1)*batch)]
+                    self.__b, self.__wt = self._gd_update(
+                        batch_X, batch_y, self.__wt, self.__b, rate, alpha)
+                print 'Epoch {:5d}: err = {:.6f} validate = {:.6f}'.format(
+                    i+1,
+                    self.err_insample(),
+                    self.err(validate_data[0], validate_data[1]))
+        else:
+            for i in range(epoch):
+                for j in range(tot_batch):
+                    batch_X = self.__X[j*batch:min(num_data, (j+1)*batch), :]
+                    batch_y = self.__y[j*batch:min(num_data, (j+1)*batch)]
+                    self.__b, self.__wt = self._gd_update(
+                        batch_X, batch_y, self.__wt, self.__b, rate, alpha)
+                print 'Epoch {:5d}: err = {:.6f}'.format(i+1, self.err_insample())
 
-valid_X = np.array(valid_data.loc[:, valid_data.columns != '10h__PM2.5'])
-valid_y = np.array(valid_data.loc[:, '10h__PM2.5'])
+    def _gd_update(self, X, y, wt, b, rate, alpha):  # noqa: N803
+        num_data = X.shape[0]
 
-# record the order of columns
-colname_X = (train_data.loc[:, train_data.columns != '10h__PM2.5']).columns
+        # y_pred
+        y_pred = np.sum(wt * X, axis=1) + b
+        # y_pred - y
+        y_diff = y_pred - y
 
-# ### gradient descent
-gd = GradientDescent()
+        # b update
+        b_gradient = np.sum(y_diff)/num_data
+        new_b = b - rate * b_gradient
+        # wt update
+        new_wt = []
+        for i, w in enumerate(wt):
+            w_gradient = np.sum(X[:, i] * y_diff)/num_data + alpha * w
+            new_wt.append(w - rate * w_gradient)
+        new_wt = np.array(new_wt, dtype='float64')
+        return (new_b, new_wt)
 
+    def predict(self, X):  # noqa: N803
+        if type(X) == list:
+            X = np.array(X, dtype='float64')
 
-gd.train_by_pseudo_inverse(train_X, train_y, alpha=0.5, validate_data=(valid_X, valid_y))
-# init_wt = gd.wt
-# init_b  = gd.b
-#
-# gd.train(train_X,train_y,epoch=10,rate=0.000001,batch=100,alpha=0.00000001,
-#    init_wt=np.array(init_wt),init_b=init_b,
-#    validate_data = (valid_X,valid_y))
+        if X.shape[1] != self.__wt.shape[0]:
+            raise ValueError('shape of input x does not match shape of weight')
 
-# ### testing
-col_names = ['ID', 'Item']+map(lambda x: '{:02d}h'.format(x), range(1, 10))
-test = pd.read_csv('./data/test_X.csv', names=col_names, header=None)
+        return np.sum(self.__wt * X, axis=1)+self.__b
 
-# record ordfer of test.ID
-id_test = test.ID
+    def err_insample(self):
+        if self.__X.size == 0 or self.__y.size == 0:
+            raise RuntimeError('in-sample data not found')
 
-# replace NR to 0
-for col in map(lambda x: '{:02d}h'.format(x), range(1, 10)):
-    test.loc[(test.Item == 'RAINFALL') & (test[col] == 'NR'), col] = 0
+        return self.err(self.__X, self.__y)
 
-# ['ID','Item','Hour','Value'] form
-test = test.pivot_table(index=['ID', 'Item'], aggfunc='sum')
-test = test.stack()
-test = test.reset_index()
-test.columns = ['ID', 'Item', 'Hour', 'Value']
+    def err(self, X, y):  # noqa: N803
+        self._check_data(X, y)
 
-# combine 'Hour' and 'Item' to 'Col'
-test['Col'] = test.Hour + '__' + test.Item
-test = test[['ID', 'Col', 'Value']]
+        if self.__wt.size == 0 or self.__b.size == 0:
+            raise RuntimeError('you should train model first')
+        y_pred = np.sum(self.__wt * X, axis=1) + self.__b
 
-# pivot 'Col' to columns
-test = test.pivot_table(values='Value', index='ID', columns='Col', aggfunc='sum').reset_index()
-test.name = ''
+        err = (np.sum((y - y_pred)**2) / y.shape[0])**0.5
+        return round(err, 8)
 
-# re-order
-test['ID_Num'] = test.ID.str.replace('id_', '').astype('int')
-test = test.sort_values(by='ID_Num')
-test = test.reset_index(drop=True)
-
-# predict
-X_test = np.array(test[colname_X], dtype='float64')
-test['Predict'] = gd.predict(X_test)
-
-# output
-test[['ID', 'Predict']].to_csv('linear_regression.csv', header=None, index=None)
+    def _check_data(self, X, y):  # noqa: N803
+        if X.shape[0] != y.shape[0]:
+            raise ValueError('shape of X and y do not match')
