@@ -23,10 +23,10 @@ from models_supervised_cnn import (
 )
 
 PATH = os.path.dirname(os.path.realpath(__file__))
-tee = Tee(os.path.join(PATH, 'log_supervised_cnn.logg'), 'w')
+tee = Tee(os.path.join(PATH, 'result', 'log', 'log_supervised_cnn.logg'), 'w')
 
 # preproc
-folder = os.path.join(PATH, 'data')
+folder = os.path.join(PATH, 'given')
 X, Y = load_label(folder)
 X = transform_channel(X, orig_mode='channels_first')
 
@@ -60,7 +60,7 @@ model, batch_size = model_ycnet3(10, inputs=(32, 32, 3))
 model.summary()
 
 
-model_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'model')
+model_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'result', 'model')
 model_tmp_dir = os.path.join(model_dir, 'tmp')
 model_path = os.path.join(model_tmp_dir, 'model_cnn_gen{epoch:02d}_loss{val_loss:.2f}.hdf5')
 for file in os.listdir(model_tmp_dir):

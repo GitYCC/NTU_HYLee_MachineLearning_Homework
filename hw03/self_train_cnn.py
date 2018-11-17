@@ -16,10 +16,10 @@ from common import (
 
 
 PATH = os.path.dirname(os.path.realpath(__file__))
-tee = Tee(os.path.join(PATH, 'log_self_train_cnn.logg'), 'w')
+tee = Tee(os.path.join(PATH, 'result', 'log', 'log_self_train_cnn.logg'), 'w')
 
 # label data preproc
-folder = os.path.join(PATH, 'data')
+folder = os.path.join(PATH, 'given')
 LX, LY = load_label(folder)
 LX = transform_channel(LX, orig_mode='channels_first')
 LX, LY, X_valid, Y_valid = split_data(LX, LY, ratio=0.9)
@@ -31,7 +31,7 @@ UX = transform_channel(UX, orig_mode='channels_first')
 # load model
 from models_supervised_cnn import model_ycnet3
 
-model_input = os.path.join(PATH, 'model', 'model_cnn_gen15_loss1.07_acc67.6.hdf5')  # path or None
+model_input = os.path.join(PATH, 'result', 'model', 'model_cnn_gen15_loss1.07_acc67.6.hdf5')  # path or None
 
 if os.path.isfile(model_input):
     model, batch_size = model_ycnet3(10, inputs=(32, 32, 3), file_load_weights=model_input)
@@ -46,7 +46,7 @@ from common import PlotLosses
 from keras.utils import to_categorical
 
 # model store
-model_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'model')
+model_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'result', 'model')
 model_tmp_dir = os.path.join(model_dir, 'tmp')
 model_path = os.path.join(model_tmp_dir, 'model_STCNN_gen{epoch:02d}_loss{val_loss:.2f}.hdf5')
 

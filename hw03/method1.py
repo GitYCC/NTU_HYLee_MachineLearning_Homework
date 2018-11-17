@@ -28,7 +28,7 @@ def load_train_data(folder):
     return (label_data, unlabel_data)
 
 
-folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
+folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'given')
 label_data, unlabel_data = load_train_data(folder)
 
 X_train = label_data

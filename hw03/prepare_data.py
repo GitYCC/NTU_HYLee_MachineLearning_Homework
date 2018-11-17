@@ -100,7 +100,7 @@ def create_test_pickle(folder):
 
 
 def main():
-    folder = './data'
+    folder = './given/'
     maybe_download_cifar10(folder)
     tar_cifar10(folder)
     create_label_and_unlabel_pickle(folder)

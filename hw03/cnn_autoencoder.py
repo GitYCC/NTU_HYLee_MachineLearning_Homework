@@ -34,11 +34,11 @@ from common import (
 
 
 PATH = os.path.dirname(os.path.realpath(__file__))
-tee = Tee(os.path.join(PATH, 'log_cnn_autoencoder.logg'), 'w')
+tee = Tee(os.path.join(PATH, 'result', 'log', 'log_cnn_autoencoder.logg'), 'w')
 
 
 # label data preproc
-folder = os.path.join(PATH, 'data')
+folder = os.path.join(PATH, 'given')
 LX, LY = load_label(folder)
 LX = transform_channel(LX, orig_mode='channels_first')
 LX, LY, X_valid, Y_valid = split_data(LX, LY, ratio=0.9)
@@ -106,7 +106,7 @@ def cnn_autoencoder(nb_classes, inputs=(32, 32, 3), file_load_weights=None):
     return ae, aednn, ae_batch, aednn_batch
 
 
-model_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'model')
+model_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'result', 'model')
 model_tmp_dir = os.path.join(model_dir, 'tmp')
 
 ae, aednn, ae_batch, aednn_batch = cnn_autoencoder(10)
