@@ -1,25 +1,32 @@
-# NTU_HYLee_MachineLearning_Homework
+# NTU H.Y. Lee Machine Learning Homework
 
 ![image](https://img.shields.io/badge/python-2.7-blue.svg)
 
-## 事前準備
+## Prepare
 
-### 使用虛擬環境
+### virtual environment
+
+create virtual environment
 
 ```
 $ virtualenv ./ENV
+```
+
+enter virtual environment
+
+```
 $ source ./ENV/bin/active
 ```
 
-假設想要離開虛擬環境，則
+if you want to exit virual environment, 
 
 ```
 $ deactivate
 ```
 
-### 安裝相依套件
+### install dependencies
 
-在虛擬環境下，安裝相依套件
+install dependencies under virtual environment
 
 ```
 $ pip2.7 install -r requirements.txt
@@ -75,142 +82,38 @@ $ python main.py --method gradient_descent --output result/gradient_descent.csv
 
 Orignal: [http://speech.ee.ntu.edu.tw/~tlkagk/courses/ML_2016/Lecture/hw2.pdf](http://speech.ee.ntu.edu.tw/~tlkagk/courses/ML_2016/Lecture/hw2.pdf)
 
-**Q1: 實作Logistic Regression偵測垃圾信件**
+**Q1: Implement logistic regression to detect spams**
 
-`spam_data/spam_train.csv`裡有一些被Label過後的信件，前面幾個Columns代表一些字詞相關的Features，最後一個Column標示這一封信是否為垃圾信件。請用Logistic Regression訓練，並預測`spam_data/spam_test.csv`的每一筆信件（給予Features）是否為垃圾信？
+We have some labeled emails. In `given/spam_train.csv`, first severval columns present features of words and the last column presents spam/not spam labels. Those features are explained in `given/spambase.names`. Please implement logistic regression to predict whether letters are spams or not in `given/spam_test.csv`?
 
 **Ans1:**
 
-Training at `logistic_regression_train.py`
-
-```python
-class LogisticRegression(object):
-    def __init__(self,input_dim,output_dim):
-        self.__dim = (input_dim,output_dim)
-        self.__W = np.zeros((1,input_dim+1,output_dim))
-        self.__X = None
-        self.__y = None     
-    def train(self,X,y,init_W=np.array([]),rate=0.01,alpha=0,epoch=1000,batch=None,validate_data=None):
-        #...
-    def update(self,X,y,W,rate,alpha):
-        # gradient = - y*(1-yi)*W
-        #...
-    def predict(self,X):
-        #...
-    def err_insample(self):
-        #...
-    def err(self,X,y):
-        #...
-    def accuarcy_insample(self):
-        #...
-    def accuarcy(self,X,y):
-        #...
-    @staticmethod
-    def cross_entropy(ys,ys_hat):
-        #...
-    @staticmethod
-    def softmax(zs):
-        #...
-    def _check_data(self,X,y):
-        #...
-    def save(self,path):
-        #...
-    @staticmethod
-    def load(path):
-        #...
-    @staticmethod
-    def unit_test():
-        #...
-
-def main(): 
-    parser = argparse.ArgumentParser(description='HW2: Logistic Regression Training')
-    parser.add_argument('-data', metavar='Train_DATA', type=str, nargs='?',
-                   help='path of training data',required=True)
-    parser.add_argument('-m', metavar='MODEL', type=str, nargs='?',
-                   help='path of output model',required=True)
-    args = parser.parse_args()
-
-    data = args.data
-    model = args.m
-
-    cols = ['data_id','Feature_make','Feature_address','Feature_all','Feature_3d',      
-              # ...
-           ]
-    
-    df = pd.read_csv(data,names=cols)
-    X = np.array(df.drop(['data_id','label'],axis=1))
-    y = np.hstack((np.array(df[['label']]),1-np.array(df[['label']])))
-    
-    ratio = 0.8
-    num_data = X.shape[0]
-    num_train = int(ratio * num_data)
-    num_valid = num_data - num_train
-    
-    X_train = X[0:num_train,:]
-    y_train = y[0:num_train,:]
-    
-    X_valid = X[num_train:,:]
-    y_valid = y[num_train:,:]
-
-    lg = LogisticRegression(input_dim=57,output_dim=2)
-    lg.train(X_train,y_train,rate=7.7e-6,batch=10,epoch=20000,alpha=0,validate_data=(X_valid,y_valid))
-    lg.save(model)
-
-if __name__ == "__main__":
-    main()
+train:
 
 ```
+python logistic_regression.py --type train --model result/model1.p
+```
 
-Testing at  `logistic_regression_test.py`
+test:
 
-**Q2: 使用DNN的方法重複Q1的任務：偵測垃圾信件**
+```
+python logistic_regression.py --type test --model result/model1.p --output result/result1.csv
+```
+
+**Q2: Implement DNN to detect spams**
 
 **Ans2:**
 
-使用Keras建立DNN，Training at `dnn.py`
+train:
 
-```python
-#!python2.7
-import sys,os
-import numpy as np 
-import pandas as pd
-import pickle
-import math
+```
+python dnn.py --type train --model result/model2.h5
+```
 
-data = '~/Documents/DeepLearning/NTU_HYLee_MachineLearning/Homework/hw02/spam_data/spam_train.csv'
+test:
 
-cols = ['data_id','Feature_make','Feature_address', 
-        # ...
-       ]
-
-df = pd.read_csv(data,names=cols)
-X = np.array(df.drop(['data_id','label'],axis=1))
-y = np.hstack((np.array(df[['label']]),1-np.array(df[['label']])))
-
-ratio = 0.8
-num_data = X.shape[0]
-num_train = int(ratio * num_data)
-num_valid = num_data - num_train
-
-X_train = X[0:num_train,:]
-y_train = y[0:num_train,:]
-
-X_valid = X[num_train:,:]
-y_valid = y[num_train:,:]
-
-import keras
-model = keras.models.Sequential()
-model.add(keras.layers.Dense(units=10,input_dim=57))
-model.add(keras.layers.Activation('relu'))
-model.add(keras.layers.Dense(units=10))
-model.add(keras.layers.Activation('relu'))
-model.add(keras.layers.Dense(units=2))
-model.add(keras.layers.Activation('softmax'))
-
-adam = keras.optimizers.Adam(lr=0.00004, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
-
-model.compile(loss='categorical_crossentropy',optimizer=adam, metrics=['accuracy'])
-model.fit(X_train,y_train,batch_size=10,epochs=300,validation_data=(X_valid,y_valid))
+```
+python dnn.py --type test --model result/model2.h5 --output result/result2.csv
 ```
 
 ## HW03
