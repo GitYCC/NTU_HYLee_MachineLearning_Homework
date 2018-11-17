@@ -91,13 +91,14 @@ We have some labeled emails. In `given/spam_train.csv`, first severval columns p
 train:
 
 ```
-python logistic_regression.py --type train --model result/model1.p
+$ cd hw02
+$ python logistic_regression.py --type train --model result/model1.p
 ```
 
 test:
 
 ```
-python logistic_regression.py --type test --model result/model1.p --output result/result1.csv
+$ python logistic_regression.py --type test --model result/model1.p --output result/result1.csv
 ```
 
 **Q2: Implement DNN to detect spams**
@@ -107,13 +108,14 @@ python logistic_regression.py --type test --model result/model1.p --output resul
 train:
 
 ```
-python dnn.py --type train --model result/model2.h5
+$ cd hw02
+$ python dnn.py --type train --model result/model2.h5
 ```
 
 test:
 
 ```
-python dnn.py --type test --model result/model2.h5 --output result/result2.csv
+$ python dnn.py --type test --model result/model2.h5 --output result/result2.csv
 ```
 
 ## HW03
