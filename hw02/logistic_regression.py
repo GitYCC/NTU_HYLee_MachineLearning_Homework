@@ -2,25 +2,9 @@
 import math
 import pickle
 
-import pandas as pd
 import numpy as np
 
-
-COLUMNS = [
-        'data_id', 'Feature_make', 'Feature_address', 'Feature_all', 'Feature_3d',
-        'Feature_our', 'Feature_over', 'Feature_remove', 'Feature_internet', 'Feature_order',
-        'Feature_mail', 'Feature_receive', 'Feature_will', 'Feature_people', 'Feature_report',
-        'Feature_addresses', 'Feature_free', 'Feature_business', 'Feature_email', 'Feature_you',
-        'Feature_credit', 'Feature_your', 'Feature_font', 'Feature_000', 'Feature_money',
-        'Feature_hp', 'Feature_hpl', 'Feature_george', 'Feature_650', 'Feature_lab',
-        'Feature_labs', 'Feature_telnet', 'Feature_857', 'Feature_data', 'Feature_415',
-        'Feature_85', 'Feature_echnology', 'Feature_1999', 'Feature_parts', 'Feature_pm',
-        'Feature_direct', 'Feature_cs', 'Feature_meeting', 'Feature_original', 'Feature_project',
-        'Feature_re', 'Feature_edu', 'Feature_table', 'Feature_conference', 'Feature_;',
-        'Feature_(', 'Feature_[', 'Feature_!', 'Feature_$', 'Feature_#',
-        'Feature_capital_run_length_average', 'Feature_capital_run_length_longest',
-        'Feature_capital_run_length_total', 'label'
-        ]
+from data_handling import get_train_set, get_test_set
 
 
 class LogisticRegression(object):
@@ -140,39 +124,40 @@ class LogisticRegression(object):
         print lg.predict(X_train)
 
 
-def main():
-
+def parse_args():
     import argparse
 
     parser = argparse.ArgumentParser(description='HW2: Logistic Regression Training')
-    parser.add_argument('-data',  metavar='Train_DATA',  type=str,  nargs='?',
-                        help='path of training data', required=True)
-    parser.add_argument('-m',  metavar='MODEL',  type=str,  nargs='?',
+    parser.add_argument('--type',  metavar='TYPE',  type=str,  nargs='?',
+                        help='type of job: \'train\' or \'test\'', required=True)
+    parser.add_argument('--model',  metavar='MODEL',  type=str,  nargs='?',
                         help='path of output model', required=True)
+    parser.add_argument('--output',  metavar='OUTPUT',  type=str,  nargs='?',
+                        help='path of testing result', required=False)
+
     args = parser.parse_args()
+    return args
 
-    data = args.data
-    model = args.m
 
-    df = pd.read_csv(data, names=COLUMNS)
-    X = np.array(df.drop(['data_id', 'label'], axis=1))
-    y = np.hstack((np.array(df[['label']]), 1-np.array(df[['label']])))
+def main():
+    args = parse_args()
 
-    ratio = 0.8
-    num_data = X.shape[0]
-    num_train = int(ratio * num_data)
+    if args.type == 'train':
+        X_train, y_train, X_valid, y_valid = get_train_set()
 
-    X_train = X[0:num_train, :]
-    y_train = y[0:num_train, :]
+        lg = LogisticRegression(input_dim=57, output_dim=2)
+        lg.train(X_train, y_train, rate=7.7e-6, batch=10, epoch=20000, alpha=0,
+                 validate_data=(X_valid, y_valid))
+        lg.save(args.model)
 
-    X_valid = X[num_train:, :]
-    y_valid = y[num_train:, :]
-
-    # LogisticRegression.unit_test()
-    lg = LogisticRegression(input_dim=57, output_dim=2)
-    lg.train(X_train, y_train, rate=7.7e-6, batch=10, epoch=20000, alpha=0,
-             validate_data=(X_valid, y_valid))
-    lg.save(model)
+    elif args.type == 'test':
+        lg = LogisticRegression.load(args.model)
+        X_test, ids = get_test_set()
+        y_pred_label = np.argmax(lg.predict(X_test), axis=1)
+        with open(args.output, 'w') as fw:
+            fw.write('data_id,label\n')
+            for i in range(ids.shape[0]):
+                fw.write('{},{}\n'.format(ids[i], y_pred_label[i]))
 
 
 if __name__ == '__main__':
