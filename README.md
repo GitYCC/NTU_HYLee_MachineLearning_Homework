@@ -1,25 +1,32 @@
-# NTU_HYLee_MachineLearning_Homework
+# NTU H.Y. Lee Machine Learning Homework
 
 ![image](https://img.shields.io/badge/python-2.7-blue.svg)
 
-## 事前準備
+## Prepare
 
-### 使用虛擬環境
+### virtual environment
+
+create virtual environment
 
 ```
 $ virtualenv ./ENV
+```
+
+enter virtual environment
+
+```
 $ source ./ENV/bin/active
 ```
 
-假設想要離開虛擬環境，則
+if you want to exit virual environment, 
 
 ```
 $ deactivate
 ```
 
-### 安裝相依套件
+### install dependencies
 
-在虛擬環境下，安裝相依套件
+install dependencies under virtual environment
 
 ```
 $ pip2.7 install -r requirements.txt
