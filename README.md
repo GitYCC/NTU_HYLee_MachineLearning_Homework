@@ -142,6 +142,11 @@ $ python prepare_data.py
 
 訓練完畢的Supervised CNN最好的結果可以到69.4%。
 
+```
+$ cd hw03
+$ python supervised_cnn.py --type train --model_config ycnet3 --model_name 002
+```
+
 **Q2. Semi-supervised Learning方法一: 使用Self-training的技術將Un-labeled Data包含進來使得Model可以更精準，Self-training的作法是用Labeled Data Training好的CNN去預測Un-labeled Data，並依照信心度去部分認定某些Un-labeled Data為新的Label Data，然後再使用擴增後的Labeled Data更新原本CNN的權重，反覆操作來增進CNN。**
 
 **Ans2:**
@@ -154,6 +159,11 @@ $ python prepare_data.py
 
 訓練完畢的Self-train CNN最好的結果可以到76.2%，的確是有幫助的。
 
+```
+$ cd hw03
+$ python self_train_cnn.py --type train --model_config ycnet3 --model_name 002
+```
+
 **Q3. Semi-supervised Learning方法二: 利用Autoencoder加上所有Data (Labeled Data + Un-labeled Data) 先做萃取出重要的Features，接下來使用Autoencoder訓練完畢的Encoder轉換Labled Data成新的Features，再做後續CNN的訓練。**
 
 **Ans3:**
@@ -161,6 +171,11 @@ $ python prepare_data.py
 在`cnn_autoencoder.py`實現Autoencoder CNN。
 
 訓練完畢的Autoencoder CNN最好的結果可以到67.6%，和Supervised CNN效果差不多而已。
+
+```
+$ cd hw03
+$ python cnn_autoencoder.py --type train --model_config AutoencoderClassifier01 --model_name 001
+```
 
 ## HW04
 
