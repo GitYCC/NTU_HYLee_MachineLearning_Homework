@@ -57,7 +57,7 @@ def train(model_config, model_name):
     ae.fit(
         train_ae_X, normal_train_ae_X,
         batch_size=batch_ae,
-        epochs=10,
+        epochs=1,
         validation_data=(X_valid, normal_X_valid),
         verbose=1,
     )
@@ -70,7 +70,7 @@ def train(model_config, model_name):
     ae_classifier.fit(
         train_X, train_Y,
         batch_size=batch_ae_classifier,
-        epochs=60,
+        epochs=3,
         validation_data=(X_valid, Y_valid),
         verbose=1,
         callbacks=[
