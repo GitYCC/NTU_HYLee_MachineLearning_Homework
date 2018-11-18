@@ -5,6 +5,7 @@ import time
 
 import numpy as np
 
+import config
 from common import (
     load_label,
     load_unlabel,
@@ -15,23 +16,22 @@ from common import (
 )
 
 
-PATH = os.path.dirname(os.path.realpath(__file__))
-tee = Tee(os.path.join(PATH, 'result', 'log', 'log_self_train_cnn.logg'), 'w')
+tee = Tee(os.path.join(config.DIR_LOG, 'log_self_train_cnn.logg'), 'w')
 
 # label data preproc
-folder = os.path.join(PATH, 'given')
-LX, LY = load_label(folder)
+LX, LY = load_label(config.DIR_DATA)
 LX = transform_channel(LX, orig_mode='channels_first')
 LX, LY, X_valid, Y_valid = split_data(LX, LY, ratio=0.9)
 
 # unlabel data preproc
-UX = load_unlabel(folder)
+UX = load_unlabel(config.DIR_DATA)
 UX = transform_channel(UX, orig_mode='channels_first')
 
 # load model
 from models_supervised_cnn import model_ycnet3
 
-model_input = os.path.join(PATH, 'result', 'model', 'model_cnn_gen15_loss1.07_acc67.6.hdf5')  # path or None
+model_input = os.path.join(config.DIR_MODEL, 'model_cnn_gen15_loss1.07_acc67.6.hdf5')  
+# path or None
 
 if os.path.isfile(model_input):
     model, batch_size = model_ycnet3(10, inputs=(32, 32, 3), file_load_weights=model_input)

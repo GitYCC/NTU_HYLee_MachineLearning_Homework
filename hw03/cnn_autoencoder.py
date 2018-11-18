@@ -22,6 +22,7 @@ from keras.layers import (
     Lambda,
 )
 
+import config
 from common import (
     load_label,
     load_unlabel,
@@ -33,19 +34,17 @@ from common import (
 )
 
 
-PATH = os.path.dirname(os.path.realpath(__file__))
-tee = Tee(os.path.join(PATH, 'result', 'log', 'log_cnn_autoencoder.logg'), 'w')
+tee = Tee(os.path.join(config.DIR_LOG, 'log_cnn_autoencoder.logg'), 'w')
 
 
 # label data preproc
-folder = os.path.join(PATH, 'given')
-LX, LY = load_label(folder)
+LX, LY = load_label(config.DIR_DATA)
 LX = transform_channel(LX, orig_mode='channels_first')
 LX, LY, X_valid, Y_valid = split_data(LX, LY, ratio=0.9)
 
 
 # unlabel data preproc
-UX = load_unlabel(folder)
+UX = load_unlabel(config.DIR_DATA)
 UX = transform_channel(UX, orig_mode='channels_first')
 
 
@@ -106,13 +105,12 @@ def cnn_autoencoder(nb_classes, inputs=(32, 32, 3), file_load_weights=None):
     return ae, aednn, ae_batch, aednn_batch
 
 
-model_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'result', 'model')
-model_tmp_dir = os.path.join(model_dir, 'tmp')
+model_tmp_dir = os.path.join(config.DIR_MODEL, 'tmp')
 
 ae, aednn, ae_batch, aednn_batch = cnn_autoencoder(10)
 ae.summary()
 
-PATH_AE = os.path.join(model_dir, 'model_ae.hdf5')
+PATH_AE = os.path.join(config.DIR_MODEL, 'model_ae.hdf5')
 if not os.path.exists(PATH_AE):
     train_ae_X = np.concatenate((LX, UX), axis=0)
     train_ae_X, _ = data_augmentation(train_ae_X, np.ones((train_ae_X.shape[0], 1)))
@@ -146,7 +144,7 @@ time_stamp = int(time.time()/1)
 aednn.summary()
 train_aednn_X, train_aednn_Y = data_augmentation(LX, LY)
 
-path_loss_plot = os.path.join(model_dir, 'loss_plot_{}.png'.format(time_stamp))
+path_loss_plot = os.path.join(config.DIR_MODEL, 'loss_plot_{}.png'.format(time_stamp))
 aednn.fit(train_aednn_X, train_aednn_Y,
           batch_size=aednn_batch,
           epochs=60,

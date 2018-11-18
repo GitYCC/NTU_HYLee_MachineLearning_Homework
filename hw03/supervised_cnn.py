@@ -6,6 +6,7 @@ import time
 # from sklearn.preprocessing import StandardScaler
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 
+import config
 from common import (
     load_label,
     split_data,
@@ -22,12 +23,11 @@ from models_supervised_cnn import (
     model_ycnet3,
 )
 
-PATH = os.path.dirname(os.path.realpath(__file__))
-tee = Tee(os.path.join(PATH, 'result', 'log', 'log_supervised_cnn.logg'), 'w')
+
+tee = Tee(os.path.join(config.DIR_LOG, 'log_supervised_cnn.logg'), 'w')
 
 # preproc
-folder = os.path.join(PATH, 'given')
-X, Y = load_label(folder)
+X, Y = load_label(config.DIR_DATA)
 X = transform_channel(X, orig_mode='channels_first')
 
 # split data
@@ -59,16 +59,14 @@ X_train, Y_train = data_augmentation(X_train, Y_train)
 model, batch_size = model_ycnet3(10, inputs=(32, 32, 3))
 model.summary()
 
-
-model_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'result', 'model')
-model_tmp_dir = os.path.join(model_dir, 'tmp')
+model_tmp_dir = os.path.join(config.DIR_MODEL, 'tmp')
 model_path = os.path.join(model_tmp_dir, 'model_cnn_gen{epoch:02d}_loss{val_loss:.2f}.hdf5')
 for file in os.listdir(model_tmp_dir):
     os.remove(os.path.join(model_tmp_dir, file))
 
 time_stamp = int(time.time()/1)
 
-path_loss_plot = os.path.join(model_dir, 'loss_plot_{}.png'.format(time_stamp))
+path_loss_plot = os.path.join(config.DIR_MODEL, 'loss_plot_{}.png'.format(time_stamp))
 model.fit(X_train, Y_train,
           batch_size=batch_size,
           epochs=40,
