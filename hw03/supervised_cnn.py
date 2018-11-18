@@ -67,10 +67,12 @@ def train(model_config, model_name):
         batch_size=batch_size,
         epochs=3,
         validation_data=(X_valid, Y_valid),
-        callbacks=[ModelCheckpoint(checkpoint_path, monitor='val_loss'),
-                   ModelCheckpoint(model_path, save_best_only=True, monitor='val_loss', mode='min'),
-                   EarlyStopping(monitor='val_loss', patience=3, mode='min'),
-                   PlotLosses(output_img=path_loss_plot)]
+        callbacks=[
+            ModelCheckpoint(checkpoint_path, monitor='val_loss'),
+            ModelCheckpoint(model_path, save_best_only=True, monitor='val_loss', mode='min'),
+            EarlyStopping(monitor='val_loss', patience=3, mode='min'),
+            PlotLosses(output_img=path_loss_plot)
+        ]
     )
 
 
