@@ -17,7 +17,44 @@ from keras.layers import (
 # from keras.layers.advanced_activations import LeakyReLU
 
 
-def model_ycnet3(nb_classes, inputs=(32, 32, 3), file_load_weights=None):
+def simple(nb_classes, inputs=(32, 32, 3), file_load_weights=None):
+    def norm_relu(in_layer):
+        return Activation('relu')(BatchNormalization(epsilon=1e-03)(in_layer))
+
+    input_img = Input(shape=inputs)
+    norm0 = BatchNormalization(epsilon=1e-03)(input_img)
+
+    conv1_1 = Conv2D(8, (5, 5), padding='same')(norm0)
+    norm_relu1_1 = norm_relu(conv1_1)
+    maxpool1 = MaxPooling2D(pool_size=(2, 2), strides=(2, 2))(norm_relu1_1)
+    dropout1 = Dropout(0.5)(maxpool1)
+
+    conv2_1 = Conv2D(4, (5, 5), padding='same')(dropout1)
+    norm_relu2_1 = norm_relu(conv2_1)
+    maxpool2 = MaxPooling2D(pool_size=(2, 2), strides=(2, 2))(norm_relu2_1)
+    dropout2 = Dropout(0.5)(maxpool2)
+
+    conv3_1 = Conv2D(10, (3, 3), padding='same')(dropout2)
+    norm_relu3_1 = norm_relu(conv3_1)
+    avepool3 = AveragePooling2D(pool_size=(8, 8), strides=(1, 1))(norm_relu3_1)
+
+    flatten4 = Flatten()(avepool3)
+    softmax4 = Activation('softmax')(flatten4)
+
+    model = Model(inputs=input_img, outputs=softmax4)
+
+    if file_load_weights:
+        model.load_weights(file_load_weights)
+
+    adam = keras.optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
+    model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
+
+    batch_size = 16
+
+    return (model, batch_size)
+
+
+def ycnet3(nb_classes, inputs=(32, 32, 3), file_load_weights=None):
     def norm_relu(in_layer):
         return Activation('relu')(BatchNormalization(epsilon=1e-03)(in_layer))
 
@@ -67,7 +104,7 @@ def model_ycnet3(nb_classes, inputs=(32, 32, 3), file_load_weights=None):
     return (model, batch_size)
 
 
-def model_ycnet2(nb_classes, inputs=(32, 32, 3)):
+def ycnet2(nb_classes, inputs=(32, 32, 3)):
     input_img = Input(shape=inputs)
 
     norm0 = BatchNormalization(epsilon=1e-03)(input_img)
@@ -110,7 +147,7 @@ def model_ycnet2(nb_classes, inputs=(32, 32, 3)):
     return (model, batch_size)
 
 
-def model_ycnet(nb_classes, inputs=(32, 32, 3)):
+def ycnet(nb_classes, inputs=(32, 32, 3)):
     def conv2d_norm_relu(n_filter, size_filter, inputs):
         w_filter, h_filter = size_filter
         layers = inputs
@@ -149,7 +186,7 @@ def model_ycnet(nb_classes, inputs=(32, 32, 3)):
     return (model, batch_size)
 
 
-def model_bryannet(nb_classes, inputs=(32, 32, 3)):
+def bryannet(nb_classes, inputs=(32, 32, 3)):
     model = Sequential()
     model.add(Conv2D(192, (5, 5), input_shape=inputs))
     model.add(BatchNormalization(epsilon=1e-03))
@@ -186,7 +223,7 @@ def model_bryannet(nb_classes, inputs=(32, 32, 3)):
     return (model, batch_size)
 
 
-def model_squeeze_net(nb_classes, inputs=(3, 224, 224)):
+def squeeze_net(nb_classes, inputs=(3, 224, 224)):
     """Use Keras to implement squeeze net(arXiv 1602.07360).
 
     Args:
