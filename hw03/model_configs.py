@@ -17,7 +17,7 @@ from keras.layers import (
 # from keras.layers.advanced_activations import LeakyReLU
 
 
-def simple(nb_classes, inputs=(32, 32, 3), file_load_weights=None):
+def test(nb_classes, inputs=(32, 32, 3), file_load_weights=None):
     def norm_relu(in_layer):
         return Activation('relu')(BatchNormalization(epsilon=1e-03)(in_layer))
 
