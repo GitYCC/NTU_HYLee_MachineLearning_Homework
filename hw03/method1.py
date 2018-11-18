@@ -16,6 +16,8 @@ from keras.layers import (
     BatchNormalization,
 )
 
+import config
+
 
 def load_train_data(folder):
     with open(os.path.join(folder, 'all_label.p'), 'rb') as fr:
@@ -28,8 +30,7 @@ def load_train_data(folder):
     return (label_data, unlabel_data)
 
 
-folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-label_data, unlabel_data = load_train_data(folder)
+label_data, unlabel_data = load_train_data(config.DIR_DATA)
 
 X_train = label_data
 X_train.shape = (10*500, 3072)

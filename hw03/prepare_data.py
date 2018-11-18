@@ -6,6 +6,7 @@ from six.moves.urllib.request import urlretrieve
 import numpy as np
 from progressbar import ProgressBar
 
+import config
 
 DIR_RAW_CIFAR10 = 'cifar-10-batches-py'
 NUM_LABLE_EACH_CLASS = 500
@@ -100,7 +101,7 @@ def create_test_pickle(folder):
 
 
 def main():
-    folder = './data'
+    folder = config.DIR_DATA
     maybe_download_cifar10(folder)
     tar_cifar10(folder)
     create_label_and_unlabel_pickle(folder)

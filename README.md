@@ -122,45 +122,61 @@ $ python dnn.py --type test --model result/model2.h5 --output result/result2.csv
 
 Original: [http://speech.ee.ntu.edu.tw/~tlkagk/courses/ML_2016/Lecture/ML%20HW3.pdf](http://speech.ee.ntu.edu.tw/~tlkagk/courses/ML_2016/Lecture/ML%20HW3.pdf)
 
-please prepare dataset of cifar-10 first
+
+
+The `CIFAR-10` dataset (https://www.cs.toronto.edu/~kriz/cifar.html) consists of 60000 32x32 colour images in 10 classes, with 6000 images per class. There are 50000 training images and 10000 test images. The 10 classes include airplane, automobile, bird, cat, deer, dog, frog, horse, ship and truck, labeled 0-9 in order.
+
+In this problem, we picked 500 images in each class from training set as labeled data, and hidden the other 45000 images' label from training set as unlabeled data.
+
+Please use below code to prepare data as above instruction.
+
 ```
 $ cd hw03
 $ python prepare_data.py
 ```
 
-使用影像圖集cifar-10做影像辨識並分類，一共有10個類別，包括：飛機、汽車、鳥、等等，每個類別各有50張已經Label好的圖片，所以Labeled Data有500筆，另外還有45000筆的圖片是Unlabeled Data，只有圖但是不知道它們的類別。
+* `given/all_label.p` contains ten classes (0-9), each class has 500 images.
+* `given/all_unlabel.p` contains 45000 images
+* `given/test.p` contains 10000 images
+* `given/test_ans.txt` are labels of `given/test.p`
 
-**Q1. Supervised Learning: 實作CNN，使用500筆Labeled Data來作影像辨識和分類。**
+**Q1. Supervised Learning: Use `given/all_label.p` data and CNN to predict `given/test.p`**
 
 **Ans1:**
 
-所有我試過的CNN Model都統一放在`models_supervised_cnn.py`
+```
+$ cd hw03
+$ python supervised_cnn.py --type train --model_config ycnet3 --model_name 002
+```
 
-中間處理過程使用到的資料處理、圖表繪製的工具包，我寫在`common.py` 裡
+The best validation accuracy can reach 69.4%.
 
-`supervised_cnn.py` 則是我訓練Supervised CNN的主程式。
-
-訓練完畢的Supervised CNN最好的結果可以到69.4%。
-
-**Q2. Semi-supervised Learning方法一: 使用Self-training的技術將Un-labeled Data包含進來使得Model可以更精準，Self-training的作法是用Labeled Data Training好的CNN去預測Un-labeled Data，並依照信心度去部分認定某些Un-labeled Data為新的Label Data，然後再使用擴增後的Labeled Data更新原本CNN的權重，反覆操作來增進CNN。**
+**Q2. Semi-supervised Learning Method 1: Self-training method. Try to use trained supervised model to label unlabeled data above specific reliablity threshold. Add those trusted data into labeled data and then use the augmented data to update CNN model.**
 
 **Ans2:**
 
-在`self_train_cnn.py`中實現了Self-training的技術。
+```
+$ cd hw03
+$ python self_train_cnn.py --type train --model_config ycnet3 --model_name 002
+```
 
-從上面已經訓練好的CNN出發，反覆的用有信心的Un-labeled Data來更新原本的CNN。
+Go from above Q1 trained supervised CNN model and use unlabeled data to update it.
 
-在Fitting的過程中發現最重要的是，要讓信心度足夠高的Un-labeled Data才能再做下一輪的更新，否則整個CNN會越訓練越差，因為信心度不夠的Data可能不一定正確，反而增加了雜訊。
+In my observation, the key point is that reliablity threshold must be high enough. Otherwise the CNN model would get worst because adding incorrect labeled data causes more noise.
 
-訓練完畢的Self-train CNN最好的結果可以到76.2%，的確是有幫助的。
+The best validation accuracy can reach 76.2%. Self-training method is work.
 
-**Q3. Semi-supervised Learning方法二: 利用Autoencoder加上所有Data (Labeled Data + Un-labeled Data) 先做萃取出重要的Features，接下來使用Autoencoder訓練完畢的Encoder轉換Labled Data成新的Features，再做後續CNN的訓練。**
+
+**Q3. Semi-supervised Learning Method 2: Use all data (labeled data + unlabeled data) to pre-train autoencoder and extract some features of data. And use encoder in this autoencoder to do supervised learning on labeled data.**
 
 **Ans3:**
 
-在`cnn_autoencoder.py`實現Autoencoder CNN。
+```
+$ cd hw03
+$ python cnn_autoencoder.py --type train --model_config AutoencoderClassifier01 --model_name 001
+```
 
-訓練完畢的Autoencoder CNN最好的結果可以到67.6%，和Supervised CNN效果差不多而已。
+The best validation accuracy can reach 67.6%. It is at same level with supervised CNN.
 
 ## HW04
 
