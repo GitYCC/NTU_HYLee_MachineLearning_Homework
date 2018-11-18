@@ -1,9 +1,12 @@
 #!python2.7
 import os
 from shutil import copyfile
-import time
+import tempfile
 
 import numpy as np
+import keras
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.utils import to_categorical
 
 import config
 from common import (
@@ -13,109 +16,152 @@ from common import (
     transform_channel,
     data_augmentation,
     Tee,
+    PlotLosses,
 )
+import model_configs
 
 
-tee = Tee(os.path.join(config.DIR_LOG, 'log_self_train_cnn.logg'), 'w')
-
-# label data preproc
-LX, LY = load_label(config.DIR_DATA)
-LX = transform_channel(LX, orig_mode='channels_first')
-LX, LY, X_valid, Y_valid = split_data(LX, LY, ratio=0.9)
-
-# unlabel data preproc
-UX = load_unlabel(config.DIR_DATA)
-UX = transform_channel(UX, orig_mode='channels_first')
-
-# load model
-from models_supervised_cnn import model_ycnet3
-
-model_input = os.path.join(config.DIR_MODEL, 'model_cnn_gen15_loss1.07_acc67.6.hdf5')  
-# path or None
-
-if os.path.isfile(model_input):
-    model, batch_size = model_ycnet3(10, inputs=(32, 32, 3), file_load_weights=model_input)
-else:
-    model, batch_size = model_ycnet3(10, inputs=(32, 32, 3))
-    model.summary()
+def _select_unlabeled_above_relable(UX, model, relable_score):  # noqa: N803
+    predicted = model.predict(UX, batch_size=64, verbose=1)
+    relable_set = np.any(predicted > relable_score, axis=1)
+    ux, uy = None, None
+    if relable_set.shape[0] != 0:
+        ux = UX[relable_set, :]
+        uy = to_categorical(np.argmax(predicted[relable_set, :], axis=1), num_classes=10)
+    return (ux, uy)
 
 
-# ### self training CNN
-from keras.callbacks import EarlyStopping, ModelCheckpoint
-from common import PlotLosses
-from keras.utils import to_categorical
-
-# model store
-model_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'result', 'model')
-model_tmp_dir = os.path.join(model_dir, 'tmp')
-model_path = os.path.join(model_tmp_dir, 'model_STCNN_gen{epoch:02d}_loss{val_loss:.2f}.hdf5')
-
-for _file in os.listdir(model_tmp_dir):
-    os.remove(os.path.join(model_tmp_dir, _file))
-
-# training
-
-num_self_train = 20
-
-for i in range(num_self_train):
-
-    print('\n\n----- Round {} -----\n\n'.format(i+1))
-
-    X_train = LX
-    Y_train = LY
-
-    if i == 0:
-        if model_input:
-            continue
-        num_epochs = 40
-        patience = 5
-
+def _create_model(model_config, path_restore=None):
+    if model_config == 'vgg16':
+        model = keras.applications.vgg16.VGG16(
+            include_top=False, weights='imagenet', input_tensor=None, input_shape=(3, 32, 32))
+        batch_size = 8
     else:
-        num_epochs = 10
-        patience = 1
+        func_get_custom_model = getattr(model_configs, model_config)
+        model, batch_size = func_get_custom_model(10, inputs=(32, 32, 3))
+    if path_restore is not None:
+        model.load_weights(path_restore)
+    return (model, batch_size)
+
+
+def train(model_config, model_name):
+    token = '{}_{}_{}'.format('st-cnn', model_config, model_name)
+
+    checkpoint_dir = tempfile.mkdtemp(prefix=token+'_', dir=config.DIR_MODEL)
+    model_path = os.path.join(config.DIR_MODEL, 'MODEL_{}.hdf5'.format(token))
+    tee = Tee(os.path.join(config.DIR_LOG, 'LOG_{}.logg'.format(token)), 'w')  # noqa: F841
+
+    # ## preproc
+    # label data preproc
+    LX, LY = load_label(config.DIR_DATA)
+    LX = transform_channel(LX, orig_mode='channels_first')
+    LX, LY, X_valid, Y_valid = split_data(LX, LY, ratio=0.9)
+
+    # unlabel data preproc
+    UX = load_unlabel(config.DIR_DATA)
+    UX = transform_channel(UX, orig_mode='channels_first')
+
+    # pretrain_model
+    spv_token = '{}_{}_{}'.format('spv-cnn', model_config, model_name)
+    pretrain_model_path = os.path.join(config.DIR_MODEL, 'MODEL_{}.hdf5'.format(spv_token))
+    if os.path.exists(pretrain_model_path):
+        model, batch_size = _create_model(model_config, path_restore=pretrain_model_path)
+        model.summary()
+    else:
+        model, batch_size = _create_model(model_config)
+        model.summary()
+        model.fit(
+            LX, LY,
+            batch_size=batch_size,
+            epochs=5,
+            validation_data=(X_valid, Y_valid),
+            callbacks=[
+                EarlyStopping(monitor='val_loss', patience=3, mode='min'),
+            ]
+        )
+
+    # ## self-training
+    num_self_train = 20
+    num_epochs = 10
+    patience = 1
+
+    path_best_checkpoint = None
+    for st_round in range(1, 1+num_self_train):
+        print('\n\n----- Round {} -----\n\n'.format(st_round))
+        round_token = token + '_round{}'.format(st_round)
+        path_loss_plot = os.path.join(checkpoint_dir, 'LOSS_{}.png'.format(round_token))
+        checkpoint_path = os.path.join(
+            checkpoint_dir,
+            'check_round{}'.format(st_round) + '_gen{epoch:02d}_loss{val_loss:.2f}.hdf5'
+        )
+
+        # restore model
+        if path_best_checkpoint is not None:
+            model, batch_size = _create_model(model_config, path_restore=path_best_checkpoint)
 
         # add predicted unlabel data above relable_score
-        print('\n\nPredict Unlabel Data ...\n\n')
-        uy = model.predict(UX, batch_size=64, verbose=1)
-
         relable_score_move = [0.975, 0.990]
         relable_score = round(
             relable_score_move[0] +
-            (relable_score_move[1] - relable_score_move[0]) * i / num_self_train, 3)
-        relable_set = np.any(uy > relable_score, axis=1)
+            (relable_score_move[1] - relable_score_move[0]) * st_round / num_self_train, 3)
 
-        if relable_set.shape[0] != 0:
-            ux = UX[relable_set, :]
-            uy = to_categorical(np.argmax(uy[relable_set, :], axis=1), num_classes=10)
-            print('\nAdd {} predicted unlabel data above {} relable\n'.format(
-                uy.shape[0], relable_score))
-
+        X_train, Y_train = LX, LY
+        ux, uy = _select_unlabeled_above_relable(UX, model, relable_score)
+        if ux is not None:
             X_train = np.concatenate((X_train, ux), axis=0)
             Y_train = np.concatenate((Y_train, uy), axis=0)
+        X_train, Y_train = data_augmentation(X_train, Y_train)
 
-    X_train, Y_train = data_augmentation(X_train, Y_train)
+        model.fit(
+                X_train, Y_train,
+                batch_size=batch_size,
+                epochs=num_epochs,
+                validation_data=(X_valid, Y_valid),
+                callbacks=[
+                    ModelCheckpoint(checkpoint_path, monitor='val_loss'),
+                    EarlyStopping(monitor='val_loss', patience=patience, mode='min'),
+                    PlotLosses(output_img=path_loss_plot)
+                ]
+        )
+        del model
 
-    time_stamp = int(time.time()/1)
+        # select best model
+        checkpoints = filter(lambda x: '_loss' in x, os.listdir(checkpoint_dir))
+        best_checkpoint = sorted(
+            checkpoints,
+            key=lambda x: float((x.split('_loss')[1]).replace('.hdf5', ''))
+        )[0]
+        path_best_checkpoint = os.path.join(checkpoint_dir, best_checkpoint)
 
-    path_loss_plot = os.path.join(model_dir, 'loss_plot_{}.png'.format(time_stamp))
-    model.fit(
-              X_train, Y_train,
-              batch_size=batch_size,
-              epochs=num_epochs,
-              validation_data=(X_valid, Y_valid),
-              callbacks=[
-                  ModelCheckpoint(model_path, monitor='val_loss', save_best_only=True),
-                  EarlyStopping(monitor='val_loss', patience=patience, mode='min'),
-                  PlotLosses(output_img=path_loss_plot)])
-    del model
+    copyfile(path_best_checkpoint, model_path)
 
-    # store model
-    best_model = sorted(os.listdir(model_tmp_dir), reverse=True)[0]
-    file_best_model = os.path.join(model_tmp_dir, best_model)
-    new_file_best_model = os.path.join(model_dir, 'round{}_'.format(i)+best_model)
-    copyfile(file_best_model, new_file_best_model)
 
-    model, batch_size = model_ycnet3(10, inputs=(32, 32, 3), file_load_weights=new_file_best_model)
+def parse_args():
+    import argparse
 
-    for file in os.listdir(model_tmp_dir):
-        os.remove(os.path.join(model_tmp_dir, file))
+    parser = argparse.ArgumentParser(description='HW3: Self-train CNN')
+    parser.add_argument('--type',  metavar='TYPE',  type=str,  nargs='?',
+                        help='type of job: \'train\' or \'eval\'', required=True)
+    parser.add_argument('--model_config',  metavar='MODEL',  type=str,  nargs='?',
+                        help='model config', required=True)
+    parser.add_argument('--model_name',  metavar='MODEL',  type=str,  nargs='?',
+                        help='model name', required=True)
+    parser.add_argument('--output',  metavar='OUTPUT',  type=str,  nargs='?',
+                        help='path of evaluation result', required=False)
+
+    args = parser.parse_args()
+    return args
+
+
+def main():
+    args = parse_args()
+
+    if args.type == 'train':
+        train(args.model_config, args.model_name)
+
+    elif args.type == 'eval':
+        pass
+
+
+if __name__ == '__main__':
+    main()
