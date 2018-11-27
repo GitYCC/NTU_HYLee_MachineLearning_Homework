@@ -57,10 +57,11 @@ def train(model_config, model_name):
     ae.fit(
         train_ae_X, normal_train_ae_X,
         batch_size=batch_ae,
-        epochs=1,
+        epochs=5,
         validation_data=(X_valid, normal_X_valid),
         verbose=1,
     )
+    autoencoder_classifier.freeze_ae_layers()
 
     # train
 
@@ -70,7 +71,7 @@ def train(model_config, model_name):
     ae_classifier.fit(
         train_X, train_Y,
         batch_size=batch_ae_classifier,
-        epochs=3,
+        epochs=60,
         validation_data=(X_valid, Y_valid),
         verbose=1,
         callbacks=[
