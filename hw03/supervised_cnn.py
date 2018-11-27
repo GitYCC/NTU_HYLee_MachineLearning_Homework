@@ -65,7 +65,7 @@ def train(model_config, model_name):
     model.fit(
         X_train, Y_train,
         batch_size=batch_size,
-        epochs=3,
+        epochs=40,
         validation_data=(X_valid, Y_valid),
         callbacks=[
             ModelCheckpoint(checkpoint_path, monitor='val_loss'),
