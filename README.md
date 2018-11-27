@@ -4,8 +4,9 @@
 
 ## Prepare
 
-### virtual environment
+### virtual environment and dependencies
 
+#### method 1: virtualenv
 create virtual environment
 
 ```
@@ -24,13 +25,41 @@ if you want to exit virual environment,
 $ deactivate
 ```
 
-### install dependencies
 
 install dependencies under virtual environment
 
 ```
 $ pip2.7 install -r requirements.txt
 ```
+
+
+#### method 2: pyenv + pipenv
+
+use `pyenv` to local python version to this project,
+
+```
+$ pyenv install 2.7.15
+$ pyenv local
+```
+
+use `pipenv` to set up dependencies,
+
+```
+$ pipenv install
+```
+
+enter virtual environment
+
+```
+$ pipenv shell
+```
+
+### GPU support on tensorflow
+
+please install NVIDIA graphics driver, CUDA 9.0 and cuDNN 7.0 first. (ref: [https://medium.com/@zhanwenchen/install-cuda-and-cudnn-for-tensorflow-gpu-on-ubuntu-79306e4ac04e](https://medium.com/@zhanwenchen/install-cuda-and-cudnn-for-tensorflow-gpu-on-ubuntu-79306e4ac04e) )  
+
+otherwise, please choose cpu version tensorflow in `requirements.txt`
+
 
 ## HW00
 
