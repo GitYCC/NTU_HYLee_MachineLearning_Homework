@@ -178,7 +178,27 @@ $ cd hw03
 $ python supervised_cnn.py --type train --model_config ycnet3 --model_name 002
 ```
 
-The best validation accuracy can reach 69.4%.
+The best result on training as following,
+
+```
+At epoch 22,
+training loss: 0.9808
+training accuracy: 75.87 %
+validation loss: 1.0050
+validation accuracy: 68.20 %
+```
+
+the log is at `./hw03/result/log/LOG_spv-cnn_ycnet3_002.logg`  
+
+the model is at `./hw03/result/model/MODEL_spv-cnn_ycnet3_002.hdf5`  
+
+
+The best validation accuracy can reach 68.20%.
+
+Chart of training and validation loss:
+
+![loss](./hw03/result/model/spv-cnn_ycnet3_002_o8IZAs/LOSS_spv-cnn_ycnet3_002.png)
+
 
 **Q2. Semi-supervised Learning Method 1: Self-training method. Try to use trained supervised model to label unlabeled data above specific reliablity threshold. Add those trusted data into labeled data and then use the augmented data to update CNN model.**
 
@@ -193,7 +213,21 @@ Go from above Q1 trained supervised CNN model and use unlabeled data to update i
 
 In my observation, the key point is that reliablity threshold must be high enough. Otherwise the CNN model would get worst because adding incorrect labeled data causes more noise.
 
-The best validation accuracy can reach 76.2%. Self-training method is work.
+The best result on training as following
+
+```
+At Round 20 and epoch  2,
+training loss: 0.6947
+training accuracy: 84.50 %
+validation loss: 0.6484
+validation accuracy: 82.40 %
+```
+
+the log is at `./hw03/result/log/LOG_st-cnn_ycnet3_002.logg`  
+
+the model is at `./hw03/result/model/MODEL_st-cnn_ycnet3_002.hdf5`  
+
+Hence, the best validation accuracy can reach 82.40 %. Self-training method is work.
 
 
 **Q3. Semi-supervised Learning Method 2: Use all data (labeled data + unlabeled data) to pre-train autoencoder and extract some features of data. And use encoder in this autoencoder to do supervised learning on labeled data.**
@@ -202,10 +236,28 @@ The best validation accuracy can reach 76.2%. Self-training method is work.
 
 ```
 $ cd hw03
-$ python cnn_autoencoder.py --type train --model_config AutoencoderClassifier01 --model_name 001
+$ python cnn_autoencoder.py --type train --model_config AutoencoderClassifier02 --model_name 002
 ```
 
-The best validation accuracy can reach 67.6%. It is at same level with supervised CNN.
+The best result on training as following,
+
+```
+At epoch 45,
+training loss: 1.1201
+training accuracy: 66.74 %
+validation loss: 0.9521
+validation accuracy: 67.80 %
+```
+
+the log is at `./hw03/result/log/LOG_ae-cnn_AutoencoderClassifier02_002.logg`  
+
+the model is at `./hw03/result/model/MODEL_ae-cnn_AutoencoderClassifier02_002.hdf5`  
+
+The best validation accuracy can reach 67.680. It is at same level with supervised CNN. But this model is healthier than supervised CNN, beacause traning lass and validation loss are closer each other in this model. So the pretrain process helps this model healthier.
+
+![loss](./hw03/result/model/ae-cnn_AutoencoderClassifier02_002_GqymCC/LOSS_ae-cnn_AutoencoderClassifier02_002.png)
+
+The line of validation loss is more smoothing than supervised CNN.
 
 ## HW04
 

@@ -54,23 +54,26 @@ def train(model_config, model_name):
     normal_X_valid = np.asarray(X_valid, dtype='float32')/255.0
 
     ae, batch_ae = autoencoder_classifier.get_autoencoder()
+    ae.summary()
     ae.fit(
         train_ae_X, normal_train_ae_X,
         batch_size=batch_ae,
-        epochs=1,
+        epochs=5,
         validation_data=(X_valid, normal_X_valid),
         verbose=1,
     )
+    # autoencoder_classifier.freeze_ae_layers()
 
     # train
 
     train_X, train_Y = data_augmentation(LX, LY)
 
     ae_classifier, batch_ae_classifier = autoencoder_classifier.get_ae_classifier()
+    ae_classifier.summary()
     ae_classifier.fit(
         train_X, train_Y,
         batch_size=batch_ae_classifier,
-        epochs=3,
+        epochs=60,
         validation_data=(X_valid, Y_valid),
         verbose=1,
         callbacks=[
