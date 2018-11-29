@@ -17,8 +17,22 @@ from common import (
     data_augmentation,
     Tee,
     PlotLosses,
+    load_test,
+    load_test_ans,
 )
 import model_configs
+
+
+def _load_model(model_config, path_restore):
+    if model_config == 'vgg16':
+        model = keras.applications.vgg16.VGG16(
+            include_top=False, weights='imagenet', input_tensor=None, input_shape=(3, 32, 32))
+    else:
+        func_get_custom_model = getattr(model_configs, model_config)
+        model, batch_size = func_get_custom_model(10, inputs=(32, 32, 3))
+
+    model.load_weights(path_restore)
+    return model
 
 
 def _select_unlabeled_above_relable(UX, model, relable_score):  # noqa: N803
@@ -136,6 +150,22 @@ def train(model_config, model_name):
     copyfile(path_best_checkpoint, model_path)
 
 
+def evaluate(model_config, model_name):
+    # load model
+    token = '{}_{}_{}'.format('st-cnn', model_config, model_name)
+    model_path = os.path.join(config.DIR_MODEL, 'MODEL_{}.hdf5'.format(token))
+    model = _load_model(model_config, path_restore=model_path)
+
+    # prepare testing data
+    X_test = load_test(config.DIR_DATA)
+    X_test = transform_channel(X_test, orig_mode='channels_first')
+    y_test = to_categorical(load_test_ans(config.DIR_DATA))
+
+    # evaluate
+    loss_test, acc_test = model.evaluate(X_test, y_test, batch_size=32)
+    print 'Test: loss={}, acc={} %'.format(loss_test, acc_test * 100.0)
+
+
 def parse_args():
     import argparse
 
@@ -146,8 +176,6 @@ def parse_args():
                         help='model config', required=True)
     parser.add_argument('--model_name',  metavar='MODEL',  type=str,  nargs='?',
                         help='model name', required=True)
-    parser.add_argument('--output',  metavar='OUTPUT',  type=str,  nargs='?',
-                        help='path of evaluation result', required=False)
 
     args = parser.parse_args()
     return args
@@ -160,7 +188,7 @@ def main():
         train(args.model_config, args.model_name)
 
     elif args.type == 'eval':
-        pass
+        evaluate(args.model_config, args.model_name)
 
 
 if __name__ == '__main__':
