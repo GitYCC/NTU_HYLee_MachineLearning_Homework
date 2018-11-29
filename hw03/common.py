@@ -7,6 +7,7 @@ import random
 from PIL import Image
 import numpy as np
 import keras
+from keras.utils import to_categorical
 from matplotlib import pyplot as plt
 from IPython.display import clear_output
 
@@ -23,7 +24,6 @@ def load_label(folder):
     nb_channel = 3
     X = label_data
     X.shape = (nb_class*nb_pic_in_class, nb_channel, height, width)
-    from keras.utils import to_categorical
     Y = to_categorical([i for i in range(nb_class) for j in range(nb_pic_in_class)])
     return (X, Y)
 
@@ -48,7 +48,21 @@ def load_test(folder):
         test_data = pickle.load(fr)
 
     test_data = np.array(test_data)
+    # preproc
+    nb_pic = test_data.shape[0]
+    height = 32
+    width = 32
+    nb_channel = 3
+    test_data.shape = (nb_pic, nb_channel, height, width)
     return test_data
+
+
+def load_test_ans(folder):
+    list_ = list()
+    with open(os.path.join(folder, 'test_ans.txt'), 'r') as fr:
+        for line in fr.readlines():
+            list_.append(int(line.strip()))
+    return list_
 
 
 def data_augmentation(X, Y):  # noqa: N803

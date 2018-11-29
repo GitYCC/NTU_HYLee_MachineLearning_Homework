@@ -199,6 +199,12 @@ Chart of training and validation loss:
 
 ![loss](./hw03/result/model/spv-cnn_ycnet3_002_o8IZAs/LOSS_spv-cnn_ycnet3_002.png)
 
+Evaluation Result:
+
+```
+$ python supervised_cnn.py --type eval --model_config ycnet3 --model_name 002
+Test: loss=1.1057958264350891, acc=64.47 %
+```
 
 **Q2. Semi-supervised Learning Method 1: Self-training method. Try to use trained supervised model to label unlabeled data above specific reliablity threshold. Add those trusted data into labeled data and then use the augmented data to update CNN model.**
 
@@ -229,6 +235,12 @@ the model is at `./hw03/result/model/MODEL_st-cnn_ycnet3_002.hdf5`
 
 Hence, the best validation accuracy can reach 82.40 %. Self-training method is work.
 
+Evaluation Result:
+
+```
+$ python self_train_cnn.py --type eval --model_config ycnet3 --model_name 002
+Test: loss=1.01355012474, acc=67.84 %
+```
 
 **Q3. Semi-supervised Learning Method 2: Use all data (labeled data + unlabeled data) to pre-train autoencoder and extract some features of data. And use encoder in this autoencoder to do supervised learning on labeled data.**
 
@@ -258,6 +270,13 @@ The best validation accuracy can reach 67.680. It is at same level with supervis
 ![loss](./hw03/result/model/ae-cnn_AutoencoderClassifier02_002_GqymCC/LOSS_ae-cnn_AutoencoderClassifier02_002.png)
 
 The line of validation loss is more smoothing than supervised CNN.
+
+Evaluation Result:
+
+```
+$ python cnn_autoencoder.py --type eval --model_config AutoencoderClassifier02 --model_name 002
+Test: loss=1.06174045963, acc=64.85 %
+```
 
 ## HW04
 
