@@ -222,11 +222,11 @@ In my observation, the key point is that reliablity threshold must be high enoug
 The best result on training as following
 
 ```
-At Round 20 and epoch  2,
-training loss: 0.6947
-training accuracy: 84.50 %
-validation loss: 0.6484
-validation accuracy: 82.40 %
+At Round 2 and epoch  7,
+training loss: 0.4838
+training accuracy: 89.31 %
+validation loss: 0.6703
+validation accuracy: 79.60 %
 ```
 
 the log is at `./hw03/result/log/LOG_st-cnn_ycnet3_002.logg`  
@@ -239,7 +239,7 @@ Evaluation Result:
 
 ```
 $ python self_train_cnn.py --type eval --model_config ycnet3 --model_name 002
-Test: loss=1.01355012474, acc=67.84 %
+Test: loss=0.958553598595, acc=69.39 %
 ```
 
 **Q3. Semi-supervised Learning Method 2: Use all data (labeled data + unlabeled data) to pre-train autoencoder and extract some features of data. And use encoder in this autoencoder to do supervised learning on labeled data.**
