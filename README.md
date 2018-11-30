@@ -111,11 +111,7 @@ $ python main.py --method gradient_descent --output result/gradient_descent.csv
 
 Orignal: [http://speech.ee.ntu.edu.tw/~tlkagk/courses/ML_2016/Lecture/hw2.pdf](http://speech.ee.ntu.edu.tw/~tlkagk/courses/ML_2016/Lecture/hw2.pdf)
 
-**Q1: Implement logistic regression to detect spams**
-
-We have some labeled emails. In `given/spam_train.csv`, first severval columns present features of words and the last column presents spam/not spam labels. Those features are explained in `given/spambase.names`. Please implement logistic regression to predict whether letters are spams or not in `given/spam_test.csv`?
-
-**Ans1:**
+### Q1: Implement logistic regression to detect spams: We have some labeled emails. In `given/spam_train.csv`, first severval columns present features of words and the last column presents spam/not spam labels. Those features are explained in `given/spambase.names`. Please implement logistic regression to predict whether letters are spams or not in `given/spam_test.csv`?
 
 train:
 
@@ -130,9 +126,7 @@ test:
 $ python logistic_regression.py --type test --model result/model1.p --output result/result1.csv
 ```
 
-**Q2: Implement DNN to detect spams**
-
-**Ans2:**
+### Q2: Implement DNN to detect spams
 
 train:
 
@@ -169,9 +163,7 @@ $ python prepare_data.py
 * `given/test.p` contains 10000 images
 * `given/test_ans.txt` are labels of `given/test.p`
 
-**Q1. Supervised Learning: Use `given/all_label.p` data and CNN to predict `given/test.p`**
-
-**Ans1:**
+### Q1. Supervised Learning: Use `given/all_label.p` data and CNN to predict `given/test.p`
 
 ```
 $ cd hw03
@@ -199,16 +191,15 @@ Chart of training and validation loss:
 
 ![loss](./hw03/result/model/spv-cnn_ycnet3_002_o8IZAs/LOSS_spv-cnn_ycnet3_002.png)
 
-Evaluation Result:
+**Evaluation Result:**
 
 ```
 $ python supervised_cnn.py --type eval --model_config ycnet3 --model_name 002
 Test: loss=1.1057958264350891, acc=64.47 %
 ```
 
-**Q2. Semi-supervised Learning Method 1: Self-training method. Try to use trained supervised model to label unlabeled data above specific reliablity threshold. Add those trusted data into labeled data and then use the augmented data to update CNN model.**
+### Q2. Semi-supervised Learning Method 1: Self-training method. Try to use trained supervised model to label unlabeled data above specific reliablity threshold. Add those trusted data into labeled data and then use the augmented data to update CNN model.  
 
-**Ans2:**
 
 ```
 $ cd hw03
@@ -222,29 +213,28 @@ In my observation, the key point is that reliablity threshold must be high enoug
 The best result on training as following
 
 ```
-At Round 20 and epoch  2,
-training loss: 0.6947
-training accuracy: 84.50 %
-validation loss: 0.6484
-validation accuracy: 82.40 %
+At Round 2 and epoch  7,
+training loss: 0.4838
+training accuracy: 89.31 %
+validation loss: 0.6703
+validation accuracy: 79.60 %
 ```
 
 the log is at `./hw03/result/log/LOG_st-cnn_ycnet3_002.logg`  
 
 the model is at `./hw03/result/model/MODEL_st-cnn_ycnet3_002.hdf5`  
 
-Hence, the best validation accuracy can reach 82.40 %. Self-training method is work.
+Hence, the best validation accuracy can reach 79.60 %. Self-training method is work.
 
-Evaluation Result:
+**Evaluation Result:**
 
 ```
 $ python self_train_cnn.py --type eval --model_config ycnet3 --model_name 002
-Test: loss=1.01355012474, acc=67.84 %
+Test: loss=0.958553598595, acc=69.39 %
 ```
 
-**Q3. Semi-supervised Learning Method 2: Use all data (labeled data + unlabeled data) to pre-train autoencoder and extract some features of data. And use encoder in this autoencoder to do supervised learning on labeled data.**
+### Q3. Semi-supervised Learning Method 2: Use all data (labeled data + unlabeled data) to pre-train autoencoder and extract some features of data. And use encoder in this autoencoder to do supervised learning on labeled data.
 
-**Ans3:**
 
 ```
 $ cd hw03
@@ -271,7 +261,7 @@ The best validation accuracy can reach 67.680. It is at same level with supervis
 
 The line of validation loss is more smoothing than supervised CNN.
 
-Evaluation Result:
+**Evaluation Result:**
 
 ```
 $ python cnn_autoencoder.py --type eval --model_config AutoencoderClassifier02 --model_name 002

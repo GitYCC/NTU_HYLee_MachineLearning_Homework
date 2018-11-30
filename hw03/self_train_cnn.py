@@ -36,7 +36,7 @@ def _load_model(model_config, path_restore):
 
 
 def _select_unlabeled_above_relable(UX, model, relable_score):  # noqa: N803
-    predicted = model.predict(UX, batch_size=64, verbose=1)
+    predicted = model.predict(UX, batch_size=64, verbose=0)
     relable_set = np.any(predicted > relable_score, axis=1)
     ux, uy = None, None
     if relable_set.shape[0] != 0:
@@ -69,7 +69,8 @@ def train(model_config, model_name):
     # label data preproc
     LX, LY = load_label(config.DIR_DATA)
     LX = transform_channel(LX, orig_mode='channels_first')
-    LX, LY, X_valid, Y_valid = split_data(LX, LY, ratio=0.9)
+    LX, LY, LX_valid, LY_valid = split_data(LX, LY, ratio=0.8)
+    LX_valid, LY_valid = data_augmentation(LX_valid, LY_valid)
 
     # unlabel data preproc
     UX = load_unlabel(config.DIR_DATA)
@@ -88,16 +89,17 @@ def train(model_config, model_name):
             LX, LY,
             batch_size=batch_size,
             epochs=5,
-            validation_data=(X_valid, Y_valid),
+            validation_data=(LX_valid, LY_valid),
             callbacks=[
                 EarlyStopping(monitor='val_loss', patience=3, mode='min'),
             ]
         )
 
     # ## self-training
-    num_self_train = 20
+    num_self_train = 10
     num_epochs = 10
     patience = 1
+    relable_score = 0.92
 
     path_best_checkpoint = None
     for st_round in range(1, 1+num_self_train):
@@ -114,28 +116,28 @@ def train(model_config, model_name):
             model, batch_size = _create_model(model_config, path_restore=path_best_checkpoint)
 
         # add predicted unlabel data above relable_score
-        relable_score_move = [0.975, 0.990]
-        relable_score = round(
-            relable_score_move[0] +
-            (relable_score_move[1] - relable_score_move[0]) * st_round / num_self_train, 3)
-
         X_train, Y_train = LX, LY
         ux, uy = _select_unlabeled_above_relable(UX, model, relable_score)
         if ux is not None:
+            num_add_unlabeled = ux.shape[0]
+            print 'add unlabeled data: ', num_add_unlabeled
+
             X_train = np.concatenate((X_train, ux), axis=0)
             Y_train = np.concatenate((Y_train, uy), axis=0)
+
         X_train, Y_train = data_augmentation(X_train, Y_train)
 
         model.fit(
                 X_train, Y_train,
                 batch_size=batch_size,
                 epochs=num_epochs,
-                validation_data=(X_valid, Y_valid),
+                validation_data=(LX_valid, LY_valid),
                 callbacks=[
                     ModelCheckpoint(checkpoint_path, monitor='val_loss'),
                     EarlyStopping(monitor='val_loss', patience=patience, mode='min'),
                     PlotLosses(output_img=path_loss_plot)
-                ]
+                ],
+                verbose=1,
         )
         del model
 
@@ -145,6 +147,7 @@ def train(model_config, model_name):
             checkpoints,
             key=lambda x: float((x.split('_loss')[1]).replace('.hdf5', ''))
         )[0]
+        print 'best checkpoint right now: ', best_checkpoint
         path_best_checkpoint = os.path.join(checkpoint_dir, best_checkpoint)
 
     copyfile(path_best_checkpoint, model_path)
