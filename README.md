@@ -45,6 +45,7 @@ $ pyenv local
 use `pipenv` to set up dependencies,
 
 ```
+$ pipenv --python 2.7.15
 $ pipenv install
 ```
 
