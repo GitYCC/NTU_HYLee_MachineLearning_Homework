@@ -16,7 +16,7 @@ $ virtualenv ./ENV
 enter virtual environment
 
 ```
-$ source ./ENV/bin/active
+$ source ./ENV/bin/activate
 ```
 
 if you want to exit virual environment, 
